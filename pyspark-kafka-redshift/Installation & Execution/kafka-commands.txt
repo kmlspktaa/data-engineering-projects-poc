@@ -1,0 +1,37 @@
+To start conflunt Kafka 
+
+confluent local services start
+
+
+-- To get into bash shell of different containers
+
+docker exec -i -t ee83539a5bfe bash
+
+------------------------
+To create topic
+
+kafka-topics --create --topic airline-topic --bootstrap-server localhost:9092 --replication-factor 1 
+
+
+
+
+-----------------------------
+To list of topics
+
+kafka-topics --list --bootstrap-server localhost:9092
+
+
+
+
+------------------------
+Consumer data sets
+
+kafka-console-consumer --topic airline-topic --bootstrap-server localhost:9092 --from-beginning
+
+
+
+
+------------------------------------
+Store data in new topic
+
+kafka-console-consumer --topic airline-shink --bootstrap-server localhost:9092 --from-beginning

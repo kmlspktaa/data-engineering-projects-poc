@@ -1,0 +1,65 @@
+Create database test_data
+
+
+
+CREATE TABLE emp(
+
+   emp_id int, 
+
+   emp_name varchar (255),
+
+   emp_city varchar (255),
+
+   emp_sal int,
+
+   emp_phone int
+
+   )
+
+
+
+
+
+select * from emp;
+
+
+
+
+
+INSERT INTO emp (emp_id, emp_name, emp_city,
+
+   emp_phone, emp_sal) VALUES(1,'ram', 'Hyderabad', 7348, 50000);
+
+
+
+INSERT INTO emp (emp_id, emp_name, emp_city,
+
+   emp_phone, emp_sal) VALUES(2,'robin', 'Hyderabad', 9843, 40000);
+
+
+
+INSERT INTO emp (emp_id, emp_name, emp_city,
+
+   emp_phone, emp_sal) VALUES(3,'amit', 'Hyderabad', 9848, 25000);
+
+
+
+INSERT INTO emp (emp_id, emp_name, emp_city,
+
+   emp_phone, emp_sal) VALUES(4,'nikhil', 'Hyderabad', 9848, 45000);
+
+
+
+INSERT INTO emp (emp_id, emp_name, emp_city,
+
+   emp_phone, emp_sal) VALUES(5,'uday', 'Hyderabad', 9848, 35000);
+
+
+
+INSERT INTO emp (emp_id, emp_name, emp_city,
+
+   emp_phone, emp_sal) VALUES(6,'deepak', 'Hyderabad', 9038, 20000);
+
+
+
+SELECT * FROM emp;
