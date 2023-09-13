@@ -1,0 +1,2 @@
+trip_id,trip_start_timestamp,trip_end_timestamp,driver_id,driver_name,source_location_address1,source_city,source_province_state,source_country,destination_location_address1,destination_city,destination_province_state,destination_country,total_distance,total_fare,trip_status,delay_start_time_mins,payment_method,payment_Status,customer_id,customer_name
+2004,2023-05-20T03:17:52.907+0000,2023-05-20T05:17:52.907+0000,A6,David,null,Chennai,null,India,null,Salem,null,India,256,1738,Completed,2,Credit/Online Banking,Confirmation awaiting from third party,7,ABC2
