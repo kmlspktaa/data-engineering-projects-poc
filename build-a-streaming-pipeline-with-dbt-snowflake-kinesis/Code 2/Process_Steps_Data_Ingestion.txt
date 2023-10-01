@@ -1,0 +1,79 @@
+Install boto3 and yfinance python libraries
+
+sudo yum install python3-pip -y
+pip3 install yfinance
+pip3 install boto3
+
+
+
+Create a python script
+
+For facing an error
+create a file config and another credentials in .aws directory which is inside your default home directory
+config will have
+[default]
+region = us-east-1
+
+
+credentials will have
+[default]
+aws_access_key_id = XXXXX
+aws_secret_access_key = XXXXX
+
+
+Load the data in s3
+
+Create a snowflake stage pointing to the s3 path
+
+CREATE OR REPLACE STAGE DBT_RAW.LANDING_ZONE.S3_EXTERNAL_STAGE
+--URL = 's3://yfinance-data-dbt-snowflake-us-east-1.prd/2023/08/06/16/'
+URL = 's3://stock-market-streaming-data-dbt-snowflake/2023'
+CREDENTIALS = (AWS_KEY_ID = 'XXXX' AWS_SECRET_KEY = 'XXXX');
+
+Create table 
+
+CREATE OR REPLACE EXTERNAL TABLE DBT_RAW.LANDING_ZONE.INTRADAY_STREAMING
+(
+    SYMBOL VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c1,':',2),'"','')::VARCHAR),
+    TIMESTAMP VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c2,':',2),'"','')::VARCHAR),
+    OPEN VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c3,':',2),'"','')::VARCHAR),
+	HIGH VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c4,':',2),'"','')::VARCHAR),
+    LOW VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c5,':',2),'"','')::VARCHAR),
+    CLOSE VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c6,':',2),'"','')::VARCHAR),
+	VOLUME VARCHAR AS (REPLACE(REPLACE(SPLIT_PART(VALUE:c7,':',2),'"',''),'}','')::VARCHAR)	
+)
+LOCATION = @DBT_RAW.LANDING_ZONE.S3_EXTERNAL_STAGE/2023/
+FILE_FORMAT = (TYPE = CSV);
+
+ALTER EXTERNAL TABLE DBT_RAW.LANDING_ZONE.INTRADAY_STREAMING REFRESH;
+
+CREATE OR REPLACE STAGE DBT_RAW.LANDING_ZONE.S3_EXTERNAL_STAGE_BATCH
+--URL = 's3://yfinance-data-dbt-snowflake-us-east-1.prd/2023/08/06/16/'
+URL = 's3://stock-market-streaming-data-dbt-snowflake/batch'
+CREDENTIALS = (AWS_KEY_ID = 'XXX' AWS_SECRET_KEY = 'XXX');
+
+
+CREATE OR REPLACE EXTERNAL TABLE DBT_RAW.LANDING_ZONE.BATCH_DATA_STOCKS
+(
+    DATE VARCHAR AS (VALUE:c1::VARCHAR),
+    TICKER VARCHAR AS (VALUE:c2::VARCHAR),
+    OPEN VARCHAR AS (VALUE:c3::VARCHAR),
+    HIGH VARCHAR AS (VALUE:c4::VARCHAR),
+    LOW VARCHAR AS (VALUE:c5::VARCHAR),
+    CLOSE VARCHAR AS (VALUE:c6::VARCHAR),
+    VOLUME VARCHAR AS (VALUE:c7::VARCHAR)
+    /*TICKET VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c2,':',2),'"','')::VARCHAR),
+    OPEN VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c3,':',2),'"','')::VARCHAR),
+	HIGH VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c4,':',2),'"','')::VARCHAR),
+    LOW VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c5,':',2),'"','')::VARCHAR),
+    CLOSE VARCHAR AS (REPLACE(SPLIT_PART(VALUE:c6,':',2),'"','')::VARCHAR),
+	VOLUME VARCHAR AS (REPLACE(REPLACE(SPLIT_PART(VALUE:c7,':',2),'"',''),'}','')::VARCHAR)	*/
+)
+LOCATION = @DBT_RAW.LANDING_ZONE.S3_EXTERNAL_STAGE_BATCH
+FILE_FORMAT = (TYPE = CSV,SKIP_HEADER=1);
+
+ALTER EXTERNAL TABLE DBT_RAW.LANDING_ZONE.INTRADAY_STREAMING REFRESH;
+
+
+
+
