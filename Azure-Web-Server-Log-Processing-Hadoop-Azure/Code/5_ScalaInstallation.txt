@@ -1,0 +1,24 @@
+#install scoop
+Open Powershell
+Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+
+#restart powershell terminal 
+
+scoop install sbt
+
+mkdir HelloWorld
+cd HelloWorld
+
+sbt new scala/hello-world.g8
+
+cd logprocessor
+Update "build.sbt"
+Copy LogProcessor.scala to scala folder inside src>main
+delete Main.scala
+
+cd logprocessor
+sbt
+~run
+
+
+3) Follow installation steps from : https://docs.scala-lang.org/getting-started/sbt-track/testing-scala-with-sbt-on-the-command-line.html

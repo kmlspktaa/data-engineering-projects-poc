@@ -1,0 +1,12 @@
+{
+	"name": "AzureBlobStorage1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"sasUri": "https://medicalembeddings.blob.core.windows.net/testcontainer/data/input/Dimension-covid.csv",
+			"encryptedCredential": "your credentials"
+		}
+	}
+}

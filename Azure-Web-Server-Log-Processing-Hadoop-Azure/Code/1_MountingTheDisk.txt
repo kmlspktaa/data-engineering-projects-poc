@@ -1,0 +1,18 @@
+lsblk
+sudo parted /dev/sdc --script mklabel gpt mkpart xfspart xfs 0% 100%
+sudo mkfs.xfs /dev/sdc -f
+sudo partprobe /dev/sdc
+
+sudo mkdir /disk
+sudo mount /dev/sdc /disk
+
+sudo blkid
+/dev/sdc: UUID="14d20048-6e62-4835-a38f-d8c9350439cc" TYPE="xfs"
+
+
+sudo nano /etc/fstab
+UUID=14d20048-6e62-4835-a38f-d8c9350439cc /disk xfs defaults,nofail 1 2
+
+/* Provide full permissions on the drive */
+sudo -i
+chmod 777 /disk

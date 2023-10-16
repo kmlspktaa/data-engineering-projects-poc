@@ -1,0 +1,90 @@
+/* Install Flume */
+cd ~
+wget https://dlcdn.apache.org/flume/1.9.0/apache-flume-1.9.0-bin.tar.gz -P /disk/flume
+
+cd /disk/flume/
+ls
+tar xzf apache-flume-1.9.0-bin.tar.gz
+
+cd apache-flume-1.9.0-bin/
+ls
+
+cd ~
+
+sudo nano .bashrc
+
+export FLUME_HOME=/disk/flume/apache-flume-1.9.0-bin
+export PATH=$PATH:$FLUME_HOME/bin
+
+cd ~
+source ~/.bashrc
+
+/* Verify Installed version of flume */
+flume-ng version
+
+wget ftp://ita.ee.lbl.gov/traces/NASA_access_log_Jul95.gz -P /disk/data/nasalogs
+wget ftp://ita.ee.lbl.gov/traces/NASA_access_log_Aug95.gz -P /disk/data/nasalogs
+
+
+cd /disk/data/nasalogs
+mkdir ./logs
+cp NASA* ./logs/
+
+cd /logs
+gunzip NASA_access_log_Jul95.gz
+gunzip NASA_access_log_Aug95.gz
+
+/* View data*/
+tail -5 NASA_access_log_Aug95
+
+vi file2hdfs.config
+# Name the components on this agent
+agent.sources = file-source
+agent.sinks = hdfs-sink
+agent.channels = file-channel
+
+# Associate channel with source and sink
+agent.sources.file-source.channels = file-channel
+agent.sinks.hdfs-sink.channel = file-channel
+
+
+# Configure the source
+agent.sources.file-source.type = spooldir
+agent.sources.file-source.spoolDir = /home/logprocessing/july
+agent.sources.file-source.fileHeader = false
+agent.sources.file-source.inputCharset=us-ascii
+agent.sources.file-source.decodeErrorPolicy=IGNORE
+
+# Configure the sink
+agent.sinks.hdfs-sink.type = hdfs
+agent.sinks.hdfs-sink.hdfs.path = /home/log/data/nasa/july/
+agent.sinks.hdfs-sink.hdfs.fileType = DataStream
+agent.sinks.hdfs-sink.hdfs.writeFormat=Text
+agent.sinks.hdfs-sink.hdfs.rollInterval=180
+agent.sinks.hdfs-sink.hdfs.rollSize=205242368
+agent.sinks.hdfs-sink.hdfs.rollCount=0
+agent.sinks.hdfs-sink.hdfs.batchSize=1500
+agent.sinks.hdfs-sink.hdfs.filePrefix=nasa_
+agent.sinks.hdfs-sink.hdfs.fileSuffix=.log
+
+
+
+# Use a channel which buffers events in memory
+agent.channels.file-channel.type = file
+agent.channels.file-channel.checkpointDir=/home/logprocessing/checkpointDir
+agent.channels.file-channel.dataDirs=/home/logprocessing/dataDir
+
+
+
+cd /disk/flume/apache-flume-1.9.0-bin/bin
+
+flume-ng agent --name agent --conf /disk/flume/config --conf-file /disk/flume/config/file2hdfs.config -Xmx2048m
+#Show the size of a directory in HDFS
+hdfs dfs -du -s -h /home/log/data/nasa/july
+
+# Know number of files in hdfs
+hdfs dfs -ls /home/log/data/nasa/july | wc -l
+
+hdfs dfs -rm /home/log/data/nasa/july/*
+
+hdfs dfs -ls /home/log/data/nasa/july/\*.log | awk '{print $8}' | xargs hdfs dfs -cat | wc -l

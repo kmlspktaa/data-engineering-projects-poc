@@ -1,0 +1,95 @@
+/* Install Hive */
+cd ~
+wget https://dlcdn.apache.org/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz -P /disk/hive
+
+cd /disk/hive
+
+tar xzf apache-hive-3.1.2-bin.tar.gz
+
+cd ~
+
+sudo nano .bashrc
+
+export HIVE_HOME="/disk/hive/apache-hive-3.1.2-bin"
+export PATH=$PATH:$HIVE_HOME/bin
+
+cd ~
+source ~/.bashrc
+
+
+
+sudo nano $HIVE_HOME/bin/hive-config.sh
+export HADOOP_HOME=/disk/hadoop/hadoop-3.3.1
+
+
+hdfs dfs -mkdir /tmp
+hdfs dfs -chmod g+w /tmp
+hdfs dfs -ls /
+
+hdfs dfs -mkdir -p /user/hive/warehouse
+hdfs dfs -chmod g+w /user/hive/warehouse
+hdfs dfs -ls /user/hive
+
+cd $HIVE_HOME/conf
+cp hive-default.xml.template hive-site.xml
+
+
+cd /disk/hive/apache-hive-3.1.2-bin/conf
+sudo nano hive-site.xml
+<property><name>system:java.io.tmpdir</name><value>/tmp/hive/java</value></property>
+<property><name>system:user.name</name><value>${user.name}</value></property>
+
+check for text :
+Ensures commands with OVERWRITE (such as INSERT OVERWRITE) acquire Exclusive locks for[remove this] transactional tables.  This ensures that inserts (w/o overwrite) running concurrently
+  are not hidden by the INSERT OVERWRITE.
+
+check for 
+<property>
+<name>hive.metastore.schema.verification</name>
+<value>false</value>
+  <description>
+    Enforce metastore schema version consistency.
+  True: Verify that version information stored in is compatible with one from Hive jars.  Also disable automatic
+ schema migration attempt. Users are required to manually migrate schema after Hive upgrade which ensures
+ proper metastore schema migration. (Default)
+    False: Warn if the version information stored in metastore doesn't match with one from in Hive jars.
+  </description>
+</property>
+
+
+
+
+
+cd $HIVE_HOME/bin
+schematool -dbType derby -initSchema
+
+cd $HIVE_HOME/bin;hive
+
+jps
+
+
+
+/* Setup for beeline */
+sudo nano $HADOOP_HOME/etc/hadoop/core-site.xml
+<property>
+     <name>hadoop.proxyuser.logprocessing.hosts</name>
+     <value>*</value>
+</property>
+<property>
+     <name>hadoop.proxyuser.logprocessing.groups</name>
+     <value>*</value>
+</property>
+
+cd /disk/hadoop/hadoop-3.3.1/sbin/
+./stop-dfs.sh
+./stop-yarn.sh
+
+./start-dfs.sh
+./start-yarn.sh
+
+cd $HIVE_HOME/bin;
+hiveserver2
+
+cd $HIVE_HOME/bin;
+beeline -u jdbc:hive2://localhost:10000 -n logprocessing
+
